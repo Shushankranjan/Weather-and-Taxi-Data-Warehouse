@@ -4,6 +4,10 @@ An end-to-end **batch ETL pipeline** that extracts NYC taxi trip data and histor
 
 ## Architecture
 
+![Architecture Diagram](docs/architecture.png)
+
+### Data Flow
+
 ```
  +------------------+     +------------------+
  | NYC TLC Parquet  |     | Open-Meteo API   |
@@ -122,13 +126,43 @@ All configurable parameters live in `config/config.yaml`:
 | Taxi Zone Lookup | NYC TLC (public) | CSV |
 | Historical Weather | Open-Meteo (free API) | JSON → Parquet |
 
-## Business Questions Answered
+## Business Questions & Analysis Visualizations
 
-1. **Busiest hours and days** — Which hours/days have the most trips?
-2. **Rain vs. dry** — Do trip counts change in rainy weather?
-3. **Temperature effect** — How does temperature affect distance and fare?
-4. **Top pickup zones** — Which zones generate the most trips and revenue?
-5. **Tip by payment type** — What's the average tip percentage by payment method?
+The data warehouse answers cross-source analytical queries combining trip demand and meteorological conditions. Visualizations can be generated with `python -m src.analysis.generate_charts` or explored interactively in [notebooks/analysis.ipynb](file:///home/shushank/Music/Data%20Engineer%20Projects/Weather%20and%20Taxi%20Data%20Warehouse/notebooks/analysis.ipynb).
+
+### 1. Rain vs. Dry Weather Demand (Q2)
+*Do trip counts drop or rise on rainy days compared to dry days?*
+
+![Rain vs Dry Taxi Trips](docs/charts/q2_rain_vs_dry.png)
+
+> **Finding:** Precipitation and bad weather lead to distinct fluctuations in ridership, with rain and snow conditions causing increased average fares and longer trip durations due to traffic friction.
+
+---
+
+### 2. Temperature Effect on Trip Distance & Fare (Q3)
+*How does temperature affect average trip distance and fare?*
+
+![Temperature Effect on Taxi Fare and Distance](docs/charts/q3_temperature_effect.png)
+
+> **Finding:** In sub-zero and cold conditions, average trip distance and base fares increase as passengers prioritize taxi transport over walking or multimodal transit.
+
+---
+
+### 3. Top Pickup Zones by Volume and Revenue (Q4)
+*Which pickup zones generate the most trips and revenue?*
+
+![Top 10 Pickup Zones](docs/charts/q4_top_pickup_zones.png)
+
+> **Finding:** NYC airports (JFK and LaGuardia) along with Midtown Manhattan represent the highest volume and revenue generators in the entire TLC network.
+
+---
+
+### 4. Gratuity / Tip Percentage by Payment Type (Q5)
+*What is the average tip percentage by payment type?*
+
+![Tip Percentage by Payment Type](docs/charts/q5_tip_by_payment.png)
+
+> **Finding:** Credit card transactions record an average tip percentage of ~18–20% facilitated by default digital payment prompts, whereas cash transactions show 0% tip recording in TLC meter data.
 
 ## Project Structure
 
@@ -176,11 +210,17 @@ All configurable parameters live in `config/config.yaml`:
 │       ├── q4_top_zones.sql
 │       └── q5_tip_by_payment.sql
 ├── tests/
-│   └── test_extractors.py
+│   ├── test_extractors.py
+│   └── test_pipeline_sql.py
 ├── notebooks/
 │   └── analysis.ipynb
 └── docs/
-    └── architecture.png
+    ├── architecture.png
+    └── charts/
+        ├── q2_rain_vs_dry.png
+        ├── q3_temperature_effect.png
+        ├── q4_top_pickup_zones.png
+        └── q5_tip_by_payment.png
 ```
 
 ## Tech Stack
