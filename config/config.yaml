@@ -1,0 +1,69 @@
+# ============================================================
+# Weather & Taxi Data Warehouse — Configuration
+# ============================================================
+# All configurable parameters live here. No hard-coded values
+# in Python or SQL files (NFR-5).
+
+project:
+  name: "Weather & Taxi Data Warehouse"
+  version: "1.0.0"
+
+# ------ Data sources ------
+sources:
+  taxi:
+    # NYC TLC Yellow Taxi Trip Records (Parquet)
+    base_url: "https://d37ci6vzurychx.cloudfront.net/trip-data"
+    file_pattern: "yellow_tripdata_{year_month}.parquet"
+    # Months to download (YYYY-MM format)
+    months:
+      - "2024-01"
+      - "2024-02"
+      - "2024-03"
+
+  zones:
+    # NYC Taxi Zone Lookup (CSV)
+    url: "https://d37ci6vzurychx.cloudfront.net/misc/taxi_zone_lookup.csv"
+    filename: "taxi_zone_lookup.csv"
+
+  weather:
+    # Open-Meteo Historical Weather API (free, no key)
+    base_url: "https://archive-api.open-meteo.com/v1/archive"
+    latitude: 40.7128
+    longitude: -74.0060
+    # Date range aligned with taxi months above
+    start_date: "2024-01-01"
+    end_date: "2024-03-31"
+    timezone: "America/New_York"
+    hourly_variables:
+      - "temperature_2m"
+      - "precipitation"
+      - "rain"
+      - "snowfall"
+      - "wind_speed_10m"
+      - "weather_code"
+
+# ------ Paths (relative to project root) ------
+paths:
+  landing_dir: "data/landing"
+  database: "data/warehouse.duckdb"
+
+# ------ Database schemas ------
+schemas:
+  raw: "raw"
+  staging: "staging"
+  marts: "marts"
+
+# ------ Data quality thresholds ------
+quality:
+  max_fare_amount: 1000.0
+  max_trip_distance_miles: 200.0
+  max_trip_duration_minutes: 720.0   # 12 hours
+  min_passenger_count: 0
+  max_passenger_count: 8
+
+# ------ Extraction settings ------
+extraction:
+  max_retries: 3
+  retry_backoff_seconds: 2
+  request_timeout_seconds: 60
+  chunk_size_bytes: 8192
