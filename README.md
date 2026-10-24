@@ -242,7 +242,3 @@ The data warehouse answers cross-source analytical queries combining trip demand
 - **Star schema** for intuitive, performant analytics
 - **Rejected rows table** for data traceability and reconciliation
 - **Central config** — no hard-coded paths or URLs anywhere
-
-## License
-
-This project is for educational/portfolio purposes.
